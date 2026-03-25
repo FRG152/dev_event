@@ -1,14 +1,15 @@
-import mongoose, { Schema, Document, Model, model } from "mongoose";
+import mongoose, { Document, Schema, Model } from "mongoose";
 
 export interface IEvent extends Document {
+  slug: string;
+  image: string;
   title: string;
-  description: string;
-  date: Date;
   location: string;
+  date: Date;
   capacity: number;
   status: "draft" | "published" | "cancelled";
-  createAt: Date;
-  updateAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const EventSchema = new Schema<IEvent>(
@@ -17,29 +18,33 @@ const EventSchema = new Schema<IEvent>(
       type: String,
       required: [true, "El titulo es requerido"],
       trim: true,
-      maxLength: [100, "Maximo 100 caracteres"],
     },
-    description: {
+    slug: {
       type: String,
-      required: [true, "La descripcion es requerida"],
-    },
-    date: {
-      type: Date,
-      required: [true, "La fecha es requerida"],
+      required: [true, "El slug es requerido"],
+      trim: true,
     },
     location: {
       type: String,
-      required: true,
+      required: [true, "La localizacion es requerida"],
+    },
+    image: {
+      type: String,
+      required: [true, "La imagen es requerida"],
     },
     capacity: {
       type: Number,
       min: [1, "La capacidad minima es 1"],
-      default: 100, // Valor por defecto si no se agrega un valor
+      default: 1,
     },
     status: {
       type: String,
       enum: ["draft", "published", "cancelled"],
       default: "draft",
+    },
+    date: {
+      type: Date,
+      required: [true, "La fecha es requerida"],
     },
   },
   {

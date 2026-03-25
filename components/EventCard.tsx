@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -11,38 +11,57 @@ interface Props {
   location: string;
   date: string;
   time: string;
+  _id: string;
 }
 
-const EventCard = ({title, image, slug, location, date, time} : Props) => {
+const EventCard = ({
+  _id,
+  title,
+  image,
+  slug,
+  location,
+  date,
+  time,
+}: Props) => {
   function handleClick() {
     posthog.capture("event_card_clicked", {
       event_title: title,
       event_slug: slug,
       event_location: location,
       event_date: date,
-    })
+    });
   }
 
   return (
-    <Link className="flex flex-col gap-2" href={"/events"} onClick={handleClick}>
-      <Image src={image} alt={title} width={410} height={300} className="poster"/>
+    <Link
+      className="flex flex-col gap-2"
+      href={`/events/${slug}`}
+      onClick={handleClick}
+    >
+      <Image
+        src={image}
+        alt={title}
+        width={410}
+        height={300}
+        className="poster"
+      />
       <div className="flex flex-row gap-2 mt-2">
-        <Image src="/icons/pin.svg" alt="location" width={14} height={14}/>
+        <Image src="/icons/pin.svg" alt="location" width={14} height={14} />
         <p>{location}</p>
       </div>
       <p className="title">{title}</p>
       <div className="datetime">
         <div className="flex items-center gap-2">
-          <Image src="/icons/calendar.svg" alt="date" width={14} height={14}/>
+          <Image src="/icons/calendar.svg" alt="date" width={14} height={14} />
           <p>{date}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Image src="/icons/clock.svg" alt="clock" width={14} height={14}/>
+          <Image src="/icons/clock.svg" alt="clock" width={14} height={14} />
           <p>{time}</p>
         </div>
       </div>
     </Link>
-  )
-}
+  );
+};
 
-export default EventCard
+export default EventCard;
