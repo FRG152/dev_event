@@ -1,15 +1,18 @@
+import cloudinary from "@/lib/cloudinary";
 import { connectionDB } from "@/lib/db";
 import Event from "@/models/Event";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     await connectionDB();
 
-    const event = await Event.findById(params.id).lean();
+    const { id } = await params;
+
+    const event = await Event.findById(id).lean();
 
     if (!event) {
       return NextResponse.json({
@@ -32,16 +35,33 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     await connectionDB();
 
-    const body = await req.json();
+    const { id } = await params;
+    const body = await req.formData();
 
-    const event = await Event.findByIdAndUpdate(params.id, body, {
-      new: true,
-      runValidators: true,
+    const file = body.get("image") as File;
+
+    let event;
+
+    try {
+      event = Object.fromEntries(body);
+    } catch (error) {
+      return NextResponse.json({ message: "JSON invalido" }, { status: 500 });
+    }
+
+    if (typeof file === "string") {
+      const uploadResult = await cloudinary.uploader.upload(file, {
+        folder: "dev-event",
+      });
+      event.image = uploadResult.secure_url;
+    }
+
+    await Event.findByIdAndUpdate(id, event, {
+      returnDocument: "after",
     });
 
     if (!event) {
@@ -56,18 +76,21 @@ export async function PUT(
 
     return NextResponse.json({ success: true, data: Event });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ success: false, error: "" }, { status: 500 });
   }
 }
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     await connectionDB();
 
-    const event = await Event.findByIdAndDelete(params.id);
+    const { id } = await params;
+
+    const event = await Event.findByIdAndDelete(id);
 
     if (!event) {
       return NextResponse.json(

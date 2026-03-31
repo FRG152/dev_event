@@ -1,11 +1,10 @@
 import mongoose from "mongoose";
 
-let isConnected = false;
-
 export async function connectionDB() {
-  if (isConnected) return;
-
-  mongoose.connect(process.env.NEXT_PUBLIC_MONGODB_URI!);
-
-  isConnected = true;
+  try {
+    await mongoose.connect(process.env.NEXT_PUBLIC_MONGODB_URI!);
+    mongoose.set("debug", true);
+  } catch (error) {
+    console.log("No se pudo conectar a la base de datos");
+  }
 }

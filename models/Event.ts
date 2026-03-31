@@ -1,13 +1,16 @@
 import mongoose, { Document, Schema, Model } from "mongoose";
 
 export interface IEvent extends Document {
+  title: string;
   slug: string;
   image: string;
-  title: string;
   location: string;
   date: Date;
+  tags: string[];
+  overview: string;
   capacity: number;
   status: "draft" | "published" | "cancelled";
+  agenda: { time: string; title: string }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -16,21 +19,33 @@ const EventSchema = new Schema<IEvent>(
   {
     title: {
       type: String,
-      required: [true, "El titulo es requerido"],
+      required: [true, "Title is required"],
       trim: true,
     },
     slug: {
       type: String,
-      required: [true, "El slug es requerido"],
+      required: [true, "Slug is required"],
       trim: true,
-    },
-    location: {
-      type: String,
-      required: [true, "La localizacion es requerida"],
     },
     image: {
       type: String,
-      required: [true, "La imagen es requerida"],
+      required: [true, "Image is required"],
+    },
+    location: {
+      type: String,
+      required: [true, "Location is required"],
+    },
+    date: {
+      type: Date,
+      required: [true, "Date is required"],
+    },
+    tags: {
+      type: [],
+      required: [true, "Tags is required"],
+    },
+    overview: {
+      type: String,
+      required: [true, "Overview is required"],
     },
     capacity: {
       type: Number,
@@ -42,9 +57,9 @@ const EventSchema = new Schema<IEvent>(
       enum: ["draft", "published", "cancelled"],
       default: "draft",
     },
-    date: {
-      type: Date,
-      required: [true, "La fecha es requerida"],
+    agenda: {
+      type: [],
+      required: [true, "Agenda is required"],
     },
   },
   {

@@ -32,29 +32,24 @@ export async function POST(req: NextRequest) {
 
     let event;
 
+    const file = body.get("image") as File;
+
     try {
       event = Object.fromEntries(body);
     } catch (error) {
       return NextResponse.json({ message: "JSON invalido" }, { status: 500 });
     }
 
-    const file = body.get("image") as File;
+    if (typeof file === "string") {
+      const uploadResult = await cloudinary.uploader.upload(file, {
+        folder: "dev-event",
+      });
 
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+      event.image = uploadResult.secure_url;
+    }
 
-    const uploadResult = await new Promise<any>((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream({ folder: "dev-event" }, (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        })
-        .end(buffer);
-    });
-
-    console.log("uploadResult:", uploadResult);
-
-    event.image = uploadResult;
+    event.agenda = JSON.parse(body.get("agenda"));
+    event.tags = JSON.parse(body.get("tags"));
 
     const createEvent = await Event.create(event);
 
@@ -63,6 +58,7 @@ export async function POST(req: NextRequest) {
       { status: 201 },
     );
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
       { success: false, error: "Error al crear evento" },
       { status: 500 },

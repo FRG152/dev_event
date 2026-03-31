@@ -35,7 +35,7 @@ const EventCard = ({
   return (
     <Link
       className="flex flex-col gap-2"
-      href={`/events/${slug}`}
+      href={`/events/${_id}`}
       onClick={handleClick}
     >
       <Image
